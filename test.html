@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <style>
+    /* Set the size of the div element that contains the map */
+
+    #map {
+      height: 400px;
+      /* The height is 400 pixels */
+      width: 80%;
+      /* The width is the width of the web page */
+    }
+  </style>
+</head>
+
+<body>
+  <script async defer src="https://maps.googleapis.com/maps/api/js?key=------&callback=initMap"></script>
+  <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.js" type="text/javascript"></script>-->
+  <script src="mqttws31.js" type="text/javascript"></script>
+  <h3>My MQTT Map</h3>
+  <button onclick="connect()">Connect!</button>
+  <p id="main_text">Let's find your phone!</p>
+  <!--The div element for the map -->
+  <center>
+    <div id="map"></div>
+    <textarea name="logg" style="width:80%;height:150px;"></textarea>
+    <script>
+      // Initialize and add the map
+      function initMap() {
+        var zero = { lat: 0.0, lng: 0.0 };
+        map = new google.maps.Map(document.getElementById('map'), { zoom: 2, center: zero });
+        marker = new google.maps.Marker({ position: zero, map: map });
+      }
+
+      var root_topic = '/guto';
+      var map = undefined;
+      var marker = undefined;
+
+      function connect() {
+        client.connect({ onSuccess: onConnect });
+        write('Test');
+      }
+
+      function subscribe() {
+        client.subscribe(root_topic + '/rx/#');
+      }
+
+      client = new Paho.MQTT.Client("test.mosquitto.org", 8080, "myid1234");
+      client.onConnectionLost = onConnectionLost;
+      client.onMessageArrived = onMessageArrived;
+
+      function onConnect() {
+        write('Connected to test.mosquitto.org!');
+        subscribe();
+      }
+
+      function onConnectionLost(responseObject) {
+        if (responseObject.errorCode !== 0) {
+          write('Connection Lost ' + responseObject.errorMessage);
+        }
+      }
+
+      function onMessageArrived(message) {
+        var dname = message.destinationName;
+        if (dname == root_topic + '/rx/loc') {
+          write('Device "' + root_topic + '" found! look below: ');
+          var loc = eval("(" + message.payloadString + ')');
+          if (loc && map != undefined) {
+            var center = new google.maps.LatLng(loc.lat, loc.lng);
+
+            marker.setMap(null);
+            marker = new google.maps.Marker({ position: center, map: map });
+            //marker.setMap(map);
+            map.setCenter(center);
+            map.setZoom(17);
+            //window.open('https://www.google.com/maps/search/'+loc.lat+','+loc.lng);
+          }
+        }
+      }
+
+      function write(text) {
+        document.getElementById("main_text").innerHTML = text;
+        //document.getElementById("logg").value += 'blaa ';
+      }
+
+
+    </script>
+    <!--Load the API from the specified URL
+    * The async attribute allows the browser to render the page while the API loads
+    * The key parameter will contain your own API key (which is not needed for this tutorial)
+    * The callback parameter executes the initMap() function
+    -->
+</body>
+
+</html>
