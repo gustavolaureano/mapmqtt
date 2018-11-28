@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+</head>
+
+<body>
+    <script src="mqttws31.js" type="text/javascript"></script>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDKRSkP_59vD7V3aWp_DAK7EDJ6ittSwM8&callback=initMap"></script>
+
+    <form name="form1" action="javascript:void(0);">
+        <div style="margin-left: 5%;">
+            <h4>My MQTT Map</h4>
+            <input type="text" name="stopic" size="20"> &ensp;
+            <button onclick="connect()">Connect!</button> &ensp;
+            <button onclick="client.disconnect()">Disconnect</button>
+            <p>
+        </div>
+        <center>
+            <div id="map" style="width:90%;height:70vh;border:0;"></div>
+            <textarea readonly name="mylog" style="width:90%;height:15vh;" value=""></textarea>
+    </form>
+
+    <script>
+        var root_topic = '/guto';
+        var location_topic = root_topic + '/rx/loc';
+        var myid = btoa(Math.random()).substring(0, 12);
+        var map = undefined;
+        var marker = undefined;
+        client = new Paho.MQTT.Client("test.mosquitto.org", 8081, myid);
+        client.onConnectionLost = onConnectionLost;
+        client.onMessageArrived = onMessageArrived;
+        form1.stopic.value = location_topic;
+        form1.mylog.value = "";
+        document.onload = connect();
+
+        function initMap() {
+            var zero = { lat: -22.817076, lng: -47.069760 };
+            map = new google.maps.Map(document.getElementById('map'), { zoom: 16, center: zero });
+            marker = new google.maps.Marker({ position: zero, map: map });
+        }
+
+        function connect() {
+            client.connect({ onSuccess: onConnect, useSSL: true });
+            write('Connecting... ID: ' + myid);
+        }
+
+        function subscribe() {
+            client.subscribe(form1.stopic.value);
+            write('Subscribed to ' + form1.stopic.value);
+            form1.stopic.readOnly = true;
+        }
+
+        function onConnect() {
+            write('Connected to test.mosquitto.org!');
+            subscribe();
+        }
+
+        function onConnectionLost(responseObject) {
+            if (responseObject.errorCode !== 0) {
+                write('Connection Lost ' + responseObject.errorMessage);
+            }
+            else {
+                write('Disconnected');
+            }
+            form1.stopic.readOnly = false;
+        }
+
+        function onMessageArrived(message) {
+            var dname = message.destinationName;
+            if (dname == form1.stopic.value) {
+                write('New message! > ' + message.payloadString);
+                try {
+                    var loc = JSON.parse(message.payloadString);
+                    if ((typeof loc.lat == 'number') && (typeof loc.lng == 'number')) {
+
+                        var center = new google.maps.LatLng(loc.lat, loc.lng);
+                        marker.setMap(null);
+                        marker = new google.maps.Marker({ position: center, map: map });
+                        map.setCenter(center);
+                        map.setZoom(17);
+                    }
+                } catch (e) {
+
+                }
+            }
+        }
+
+        function write(text) {
+            form1.mylog.value += text + '\n';
+            form1.mylog.scrollTop = form1.mylog.scrollHeight
+        }
+
+
+    </script>
+</body>
+
+</html>
