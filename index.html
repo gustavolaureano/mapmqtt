@@ -24,6 +24,7 @@
 
     <script>
         var root_topic = '/guto';
+        var count = 1;
         var location_topic = root_topic + '/rx/loc';
         var myid = btoa(Math.random()).substring(0, 12);
         client = new Paho.MQTT.Client("test.mosquitto.org", 8081, myid);
@@ -63,7 +64,7 @@
         function onMessageArrived(message) {
             var dname = message.destinationName;
             if (dname == form1.stopic.value) {
-                write('New message! > ' + message.payloadString);
+                write(count++ + ' New message:\t' + message.payloadString);
                 try {
                     var loc = JSON.parse(message.payloadString);
                     if ((typeof loc.lat == 'number') && (typeof loc.lng == 'number')) {
