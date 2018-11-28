@@ -9,12 +9,12 @@
     <script src="mqttws31.js" type="text/javascript"></script>
 
     <form name="form1" action="javascript:void(0);">
-        <div style="margin-left: 5%;">
-            <h4>My MQTT Map</h4>
-            <input type="text" name="stopic" size="20"> &ensp;
-            <button onclick="connect()">Connect!</button> &ensp;
+        <div style="margin-left: 5%;margin-right: 5%;">
+            <h4>My MQTT Map</h4>            
+            <button onclick="connect()">Connect!</button> &nbsp;
             <button onclick="client.disconnect()">Disconnect</button>
-            <p>
+            <br><input type="text" name="stopic" style="width: 100%">
+            <br>
         </div>
         <center>
             <iframe id="mmframe" src="https://maps.google.com/maps?output=embed&z=16&q=-22.817076,-47.069760"
