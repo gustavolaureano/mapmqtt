@@ -10,28 +10,27 @@
     <form name="form1" action="javascript:void(0);">
         <button onclick="connect()">Connect!</button>
         <p id="main_text">Not connected</p>
-        <!--The div element for the map -->
         <center>
-            <iframe id="mmframe" src="https://maps.google.com/maps?output=embed&z=16&q=-22.817076,-47.069760" width="100%"
-                height="350" frameborder="0" style="border:0" allowfullscreen></iframe>
+            <iframe id="mmframe" src="https://maps.google.com/maps?output=embed&z=16&q=-22.817076,-47.069760" width="100%" height="350"
+                frameborder="0" style="border:0" allowfullscreen></iframe>
             <textarea readonly name="mylog" style="width:100%;height:150px;"></textarea>
     </form>
     <script>
         var root_topic = '/guto';
         var location_topic = root_topic + '/rx/loc';
-        var myid = btoa(Math.random()).substring(0,12);
+        var myid = btoa(Math.random()).substring(0, 12);
         client = new Paho.MQTT.Client("test.mosquitto.org", 8080, myid);
         client.onConnectionLost = onConnectionLost;
         client.onMessageArrived = onMessageArrived;
 
         function connect() {
             client.connect({ onSuccess: onConnect });
-            write('Connecting... ID: '+myid);
+            write('Connecting... ID: ' + myid);
         }
 
         function subscribe() {
             client.subscribe(location_topic);
-            write('Subscribed to '+location_topic)
+            write('Subscribed to ' + location_topic)
         }
 
         function onConnect() {
@@ -49,9 +48,13 @@
             var dname = message.destinationName;
             if (dname == location_topic) {
                 write('New message received! > ' + message.payloadString);
-                var loc = eval("(" + message.payloadString + ')');
-                if (loc) {
-                    document.getElementById('mmframe').src = 'https://maps.google.com/maps?output=embed&z=16&q=' + loc.lat + ',' + loc.lng;
+                try {
+                    var loc = JSON.parse(message.payloadString);
+                    if ((typeof loc.lat == 'number') && (typeof loc.lng == 'number')) {
+                        document.getElementById('mmframe').src = 'https://maps.google.com/maps?output=embed&z=16&q=' + loc.lat + ',' + loc.lng;
+                    }
+                } catch (e) {
+
                 }
             }
         }
