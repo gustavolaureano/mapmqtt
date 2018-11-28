@@ -6,15 +6,19 @@
 
 <body>
     <script src="mqttws31.js" type="text/javascript"></script>
-    <h4>My MQTT Map</h4>
+
     <form name="form1" action="javascript:void(0);">
-        <button onclick="connect()">Connect!</button>
-        <p id="main_text">Not connected</p>
+        <div style="margin-left: 5%">
+            <h4>My MQTT Map</h4>
+            <button onclick="connect()">Connect!</button>
+            <p>
+        </div>
         <center>
             <iframe id="mmframe" src="https://maps.google.com/maps?output=embed&z=16&q=-22.817076,-47.069760"
-            style="width:90%;height:65vh;" frameborder="0" style="border:0" allowfullscreen></iframe>
+                frameborder="0" style="width:90%;height:70vh;border:0;" allowfullscreen></iframe>
             <textarea readonly name="mylog" style="width:90%;height:15vh;"></textarea>
     </form>
+
     <script>
         var root_topic = '/guto';
         var location_topic = root_topic + '/rx/loc';
@@ -24,7 +28,7 @@
         client.onMessageArrived = onMessageArrived;
 
         function connect() {
-            client.connect({ onSuccess: onConnect , useSSL: true});
+            client.connect({ onSuccess: onConnect, useSSL: true });
             write('Connecting... ID: ' + myid);
         }
 
@@ -60,18 +64,12 @@
         }
 
         function write(text) {
-            document.getElementById("main_text").innerHTML = text;
             form1.mylog.value += text + '\n';
             form1.mylog.scrollTop = form1.mylog.scrollHeight
         }
 
 
     </script>
-    <!--Load the API from the specified URL
-    * The async attribute allows the browser to render the page while the API loads
-    * The key parameter will contain your own API key (which is not needed for this tutorial)
-    * The callback parameter executes the initMap() function
-    -->
 </body>
 
 </html>
