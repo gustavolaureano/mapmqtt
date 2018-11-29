@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<html>
+
+<head>
+</head>
+
+<body>
+    <script src="mqttws31.js" type="text/javascript"></script>
+
+    <form name="form1" action="javascript:void(0);">
+        <div style="margin-left: 5%;margin-right: 5%;">
+            <h4>GPS mock</h4>
+            <input type="text" name="stopic"><br>
+            <button onclick="connect()">Connect!</button>&ensp;
+            <button onclick="client.disconnect()">Disconnect</button>&ensp;
+            <button onclick="start()">Start</button>&ensp;
+            <button onclick="stop()">Stop</button><br>
+            <br>
+        </div>
+        <center>
+            <textarea readonly name="mylog" style="width:90%;height:15vh;" value=""></textarea>
+    </form>
+
+    <script>
+        var root_topic = '/guto';
+        var count = 0;
+        var myTimer = undefined;
+        var location_topic = root_topic + '/rx/loc';
+        var myid = btoa(Math.random()).substring(0, 12);
+        client = new Paho.MQTT.Client("test.mosquitto.org", 8081, myid);
+        client.onConnectionLost = onConnectionLost;
+        client.on
+        form1.stopic.value = location_topic;
+        form1.mylog.value = "";
+        document.onload = connect();
+
+        function connect() {
+            client.connect({ onSuccess: onConnect, useSSL: true });
+            write('Connecting... ID: ' + myid);
+        }
+
+        function onConnect() {
+            write('Connected to test.mosquitto.org!');
+        }
+
+        function onConnectionLost(responseObject) {
+            if (responseObject.errorCode !== 0) {
+                write('Connection Lost ' + responseObject.errorMessage);
+            }
+            else {
+                write('Disconnected');
+            }
+            form1.stopic.readOnly = false;
+            stop();
+        }
+
+        function myTick() {
+            message = new Paho.MQTT.Message(waypoints[count]);
+            message.destinationName = form1.stopic.value;
+            client.send(message);
+            write(count + ' >> ' + waypoints[count]);
+            if (++count == waypoints.length) {
+                count = 0;
+            }
+        }
+
+        function start() {
+            write("Starting timer");
+            myTimer = setInterval(myTick, 2000);
+        }
+
+        function stop() {
+            write("Timer stopped");
+            clearInterval(myTimer);
+        }
+
+
+        function write(text) {
+            form1.mylog.value += text + '\n';
+            form1.mylog.scrollTop = form1.mylog.scrollHeight
+        }
+
+        var waypoints = [
+            '{"lat":-22.8157158,"lng":-47.0700638}',
+            '{"lat":-22.8157899,"lng":-47.0703266}',
+            '{"lat":-22.8155971,"lng":-47.0704178}',
+            '{"lat":-22.8153054,"lng":-47.0705412}',
+            '{"lat":-22.8150285,"lng":-47.0706646}',
+            '{"lat":-22.8146312,"lng":-47.0708523}',
+            '{"lat":-22.8143147,"lng":-47.0709972}',
+            '{"lat":-22.8140848,"lng":-47.0710884}',
+            '{"lat":-22.8139315,"lng":-47.0708309}',
+            '{"lat":-22.8138128,"lng":-47.0705037}',
+            '{"lat":-22.8137634,"lng":-47.0701925}',
+            '{"lat":-22.8137535,"lng":-47.0699082}',
+            '{"lat":-22.8137535,"lng":-47.0695649}',
+            '{"lat":-22.8137782,"lng":-47.0692430}',
+            '{"lat":-22.8138178,"lng":-47.0689533}',
+            '{"lat":-22.8138794,"lng":-47.0687123}',
+            '{"lat":-22.8139832,"lng":-47.0684656}',
+            '{"lat":-22.8140722,"lng":-47.0681813}',
+            '{"lat":-22.8142403,"lng":-47.0678809}',
+            '{"lat":-22.8144035,"lng":-47.0675965}',
+            '{"lat":-22.8146063,"lng":-47.0673230}',
+            '{"lat":-22.8148090,"lng":-47.0671191}',
+            '{"lat":-22.8149821,"lng":-47.0669367}',
+            '{"lat":-22.8151798,"lng":-47.0667704}',
+            '{"lat":-22.8153974,"lng":-47.0666095}',
+            '{"lat":-22.8157188,"lng":-47.0664378}',
+            '{"lat":-22.8159314,"lng":-47.0663627}',
+            '{"lat":-22.8161490,"lng":-47.0662715}',
+            '{"lat":-22.8164358,"lng":-47.0662125}',
+            '{"lat":-22.8167473,"lng":-47.0661535}',
+            '{"lat":-22.8169451,"lng":-47.0661374}',
+            '{"lat":-22.8171083,"lng":-47.0659980}',
+            '{"lat":-22.8171033,"lng":-47.0655742}',
+            '{"lat":-22.8170984,"lng":-47.0651396}',
+            '{"lat":-22.8171033,"lng":-47.0646676}',
+            '{"lat":-22.8170885,"lng":-47.0641955}',
+            '{"lat":-22.8170786,"lng":-47.0639300}',
+            '{"lat":-22.8172467,"lng":-47.0637932}',
+            '{"lat":-22.8174742,"lng":-47.0638871}',
+            '{"lat":-22.8176601,"lng":-47.0639499}',
+            '{"lat":-22.8178184,"lng":-47.0640250}',
+            '{"lat":-22.8179370,"lng":-47.0640572}',
+            '{"lat":-22.8180359,"lng":-47.0641055}',
+            '{"lat":-22.8181397,"lng":-47.0641430}',
+            '{"lat":-22.8182337,"lng":-47.0641913}',
+            '{"lat":-22.8183425,"lng":-47.0642503}',
+            '{"lat":-22.8185897,"lng":-47.0643576}',
+            '{"lat":-22.8188172,"lng":-47.0645078}',
+            '{"lat":-22.8189160,"lng":-47.0645614}',
+            '{"lat":-22.8189952,"lng":-47.0645990}',
+            '{"lat":-22.8190051,"lng":-47.0648243}',
+            '{"lat":-22.8189259,"lng":-47.0650281}',
+            '{"lat":-22.8187924,"lng":-47.0653393}',
+            '{"lat":-22.8186738,"lng":-47.0656665}',
+            '{"lat":-22.8185304,"lng":-47.0659830}',
+            '{"lat":-22.8184364,"lng":-47.0662941}',
+            '{"lat":-22.8182930,"lng":-47.0666804}',
+            '{"lat":-22.8181793,"lng":-47.0669766}',
+            '{"lat":-22.8180854,"lng":-47.0672502}',
+            '{"lat":-22.8179321,"lng":-47.0676096}',
+            '{"lat":-22.8178480,"lng":-47.0678349}',
+            '{"lat":-22.8177293,"lng":-47.0681192}',
+            '{"lat":-22.8176502,"lng":-47.0683392}',
+            '{"lat":-22.8173437,"lng":-47.0682453}',
+            '{"lat":-22.8169481,"lng":-47.0682453}',
+            '{"lat":-22.8166379,"lng":-47.0683320}',
+            '{"lat":-22.8163363,"lng":-47.0684500}',
+            '{"lat":-22.8160693,"lng":-47.0687129}',
+            '{"lat":-22.8158863,"lng":-47.0689596}',
+            '{"lat":-22.8157677,"lng":-47.0692636}',
+            '{"lat":-22.8157034,"lng":-47.0696713}'
+        ]
+    </script>
+</body>
+
+</html>
