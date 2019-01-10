@@ -35,6 +35,8 @@
         <center>
             <div id="map" style="width:90%;height:70vh;border:0;"></div>
             <textarea readonly name="mylog" style="width:90%;height:15vh;" value=""></textarea>
+            <div id="dbg" align="right" style="width:90%">
+            </div>
     </form>
 
     <script>
@@ -114,7 +116,12 @@
 
         function write(text) {
             form1.mylog.value += text + '\n';
-            form1.mylog.scrollTop = form1.mylog.scrollHeight
+            if (form1.mylog.value.split('\n').length > 10)
+            {
+                form1.mylog.value = form1.mylog.value.split('\n').slice(1).join('\n');
+            }
+            form1.mylog.scrollTop = form1.mylog.scrollHeight;
+            document.getElementById("dbg").innerHTML = form1.mylog.value.split('\n').length + ' - ' + form1.mylog.value.length;
         }
 
 
