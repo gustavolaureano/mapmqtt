@@ -60,7 +60,7 @@
         function initMap() {
             var zero = { lat: -22.817076, lng: -47.069760 };
             map = new google.maps.Map(document.getElementById('map'), { zoom: 16, center: zero });
-            marker = new google.maps.Marker({ position: zero, map: map });
+            //marker = new google.maps.Marker({ position: zero, map: map });
         }
 
         function connect() {
@@ -95,7 +95,7 @@
                 write(count++ + ' New message:\t' + message.payloadString);
                 try {
                     var rcvobj = JSON.parse(message.payloadString);
-                    if ((typeof rcvobj.lat == 'number') && (typeof rcvobj.lng == 'number')) {
+                    if ( (typeof rcvobj.lat == 'number') && (typeof rcvobj.lng == 'number') && ( (rcvobj.lat!=0) && (rcvobj.lng!=0) ) ) {
 
                         var center = new google.maps.LatLng(rcvobj.lat, rcvobj.lng);
                         marker.setMap(null);
