@@ -9,6 +9,10 @@
             font-weight: normal;
         }
         .prvalue {
+            color: green;
+            font-weight: bold;
+        }
+        .prnewvalue {
             color: red;
             font-weight: bold;
         }
@@ -45,6 +49,7 @@
         var myid = btoa(Math.random()).substring(0, 12);
         var map = undefined;
         var marker = undefined;
+        var oldobj = undefined;
         client = new Paho.MQTT.Client("test.mosquitto.org", 8081, myid);
         client.onConnectionLost = onConnectionLost;
         client.onMessageArrived = onMessageArrived;
@@ -105,8 +110,19 @@
                     for (var propName in rcvobj) {
                         propValue = rcvobj[propName];
 
-                        document.getElementById("printarea").innerHTML +="<span class=\"prname\"> | "+ propName + ":</span> <span class=\"prvalue\">" + propValue + "</span>";
+                        document.getElementById("printarea").innerHTML +="<span class=\"prname\"> | "+ propName + ":</span>";
+                        
+                        if ((typeof oldobj != "undefined") && (oldobj[propName] != propValue))
+                        {
+                            document.getElementById("printarea").innerHTML +="<span class=\"prnewvalue\">" + propValue + "</span>";
+                        }
+                        else
+                        {
+                            document.getElementById("printarea").innerHTML +="<span class=\"prvalue\">" + propValue + "</span>";
+                        }
+
                     }
+                    oldobj = rcvobj;
 
                 } catch (e) {
                     write("Error: " + e.message);
